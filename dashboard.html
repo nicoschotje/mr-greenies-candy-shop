@@ -1784,9 +1784,9 @@ input, select, textarea { font-family: inherit; }
 /* ── Safe Storage Wrapper (local storage with in-memory fallback) ── */
 const _mem = {};
 const store = {
-  getItem(k)    { try { return store.getItem(k); } catch(e) { return _mem[k] ?? null; } },
-  setItem(k, v) { try { store.setItem(k, v); } catch(e) { _mem[k] = v; } },
-  removeItem(k) { try { store.removeItem(k); } catch(e) { delete _mem[k]; } },
+  getItem(k)    { try { return localStorage.getItem(k); } catch(e) { return _mem[k] ?? null; } },
+  setItem(k, v) { try { localStorage.setItem(k, v); } catch(e) { _mem[k] = v; } },
+  removeItem(k) { try { localStorage.removeItem(k); } catch(e) { delete _mem[k]; } },
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
