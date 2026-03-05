@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e1a">
+<title>Mr Greenies - Owner Dashboard V4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--card:#111827;--border:#1e293b;--accent:#00d4aa;--gold:#f5a623;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;--text:#f1f5f9;--muted:#94a3b8}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.app{max-width:960px;margin:0 auto;padding:16px}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-size:0.85rem;margin-bottom:16px;-webkit-tap-highlight-color:transparent}
+.dash-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;flex-wrap:wrap;gap:12px}
+.dash-header h1{font-size:clamp(1.2rem,4vw,1.5rem)}
+.dash-header h1 span{color:var(--accent)}
+.pin-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);padding:6px 14px;border-radius:8px;font-size:0.75rem;color:var(--accent);font-weight:600}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px;margin:16px 0}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.kpi-label{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.kpi-value{font-size:clamp(1.5rem,4vw,2rem);font-weight:700}
+.kpi-value.green{color:var(--accent)}
+.kpi-value.gold{color:var(--gold)}
+.kpi-value.blue{color:var(--blue)}
+.kpi-value.purple{color:var(--purple)}
+.kpi-change{font-size:0.75rem;margin-top:4px}
+.kpi-change.up{color:var(--accent)}
+.kpi-change.down{color:var(--red)}
+.section{margin-top:24px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.section-head h2{font-size:clamp(1rem,3vw,1.2rem)}
+.section-head a{color:var(--accent);font-size:0.8rem;text-decoration:none}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{background:var(--card);padding:12px;text-align:left;font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+td{padding:12px;font-size:0.85rem;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.status{display:inline-block;padding:3px 10px;border-radius:6px;font-size:0.7rem;font-weight:600}
+.status.pending{background:rgba(245,166,35,0.15);color:var(--gold)}
+.status.confirmed{background:rgba(0,212,170,0.15);color:var(--accent)}
+.status.delivered{background:rgba(59,130,246,0.15);color:var(--blue)}
+.status.cancelled{background:rgba(239,68,68,0.15);color:var(--red)}
+.chart-placeholder{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
+.chart-bars{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:120px;margin:16px 0}
+.bar{width:clamp(20px,5vw,32px);border-radius:6px 6px 0 0;transition:height 0.3s}
+.bar-label{font-size:0.6rem;color:var(--muted);text-align:center;margin-top:4px}
+.sidebar-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-btn{padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:0.8rem;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.08)}
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:12px}
+.inv-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.inv-icon{font-size:2em;margin-bottom:8px}
+.inv-name{font-weight:600;font-size:0.9rem;margin-bottom:4px}
+.inv-stock{font-size:0.8rem;color:var(--muted)}
+.inv-stock .low{color:var(--red)}
+.inv-stock .ok{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="index.html">&#8592; Back to MasterHub</a>
+  <div class="dash-header">
+    <h1>&#128202; Owner <span>Dashboard</span> V4</h1>
+    <div class="pin-badge">&#128274; PIN Protected</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <a class="nav-btn active" href="#">&#127968; Overview</a>
+    <a class="nav-btn" href="#">&#128230; Products</a>
+    <a class="nav-btn" href="#">&#128203; Orders</a>
+    <a class="nav-btn" href="#">&#128101; Customers</a>
+    <a class="nav-btn" href="#">&#128666; Delivery</a>
+    <a class="nav-btn" href="#">&#9881; Settings</a>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Today's Revenue</div>
+      <div class="kpi-value green">&#8369;12,450</div>
+      <div class="kpi-change up">&#9650; 18% vs yesterday</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value blue">47</div>
+      <div class="kpi-change up">&#9650; 12 new today</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Active Customers</div>
+      <div class="kpi-value purple">283</div>
+      <div class="kpi-change up">&#9650; 8 new this week</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg Order Value</div>
+      <div class="kpi-value gold">&#8369;264</div>
+      <div class="kpi-change down">&#9660; 3% vs last week</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Weekly Revenue</h2><a href="#">View Report</a></div>
+    <div class="chart-placeholder">
+      <div class="chart-bars">
+        <div><div class="bar" style="height:60px;background:var(--accent)"></div><div class="bar-label">Mon</div></div>
+        <div><div class="bar" style="height:85px;background:var(--accent)"></div><div class="bar-label">Tue</div></div>
+        <div><div class="bar" style="height:45px;background:var(--accent)"></div><div class="bar-label">Wed</div></div>
+        <div><div class="bar" style="height:95px;background:var(--accent)"></div><div class="bar-label">Thu</div></div>
+        <div><div class="bar" style="height:72px;background:var(--accent)"></div><div class="bar-label">Fri</div></div>
+        <div><div class="bar" style="height:110px;background:var(--gold)"></div><div class="bar-label">Sat</div></div>
+        <div><div class="bar" style="height:88px;background:var(--accent)"></div><div class="bar-label">Sun</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Recent Orders</h2><a href="#">View All</a></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>#1047</td><td>Maria Santos</td><td>Belgian Chocolate x3</td><td>&#8369;567</td><td><span class="status confirmed">Confirmed</span></td></tr>
+          <tr><td>#1046</td><td>Juan Reyes</td><td>Candy Mix Pack</td><td>&#8369;299</td><td><span class="status delivered">Delivered</span></td></tr>
+          <tr><td>#1045</td><td>Ana Cruz</td><td>Gummy Bears x5</td><td>&#8369;645</td><td><span class="status pending">Pending</span></td></tr>
+          <tr><td>#1044</td><td>Carlo Mendoza</td><td>Lollipop Box</td><td>&#8369;189</td><td><span class="status delivered">Delivered</span></td></tr>
+          <tr><td>#1043</td><td>Liza Aquino</td><td>Ice Cream Pint x2</td><td>&#8369;398</td><td><span class="status cancelled">Cancelled</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Inventory Status</h2><a href="#">Manage</a></div>
+    <div class="inv-grid">
+      <div class="inv-card"><div class="inv-icon">&#127851;</div><div class="inv-name">Belgian Dark Chocolate</div><div class="inv-stock">Stock: <span class="ok">142 pcs</span></div></div>
+      <div class="inv-card"><div class="inv-icon">&#127853;</div><div class="inv-name">Rainbow Lollipop</div><div class="inv-stock">Stock: <span class="low">8 pcs &#9888;</span></div></div>
+      <div class="inv-card"><div class="inv-icon">&#127856;</div><div class="inv-name">Sour Gummy Bears</div><div class="inv-stock">Stock: <span class="ok">89 pcs</span></div></div>
+      <div class="inv-card"><div class="inv-icon">&#127849;</div><div class="inv-name">Matcha Cookie Tin</div><div class="inv-stock">Stock: <span class="low">12 pcs &#9888;</span></div></div>
+      <div class="inv-card"><div class="inv-icon">&#127846;</div><div class="inv-name">Ube Ice Cream</div><div class="inv-stock">Stock: <span class="ok">56 pcs</span></div></div>
+      <div class="inv-card"><div class="inv-icon">&#127852;</div><div class="inv-name">Strawberry Candy</div><div class="inv-stock">Stock: <span class="ok">203 pcs</span></div></div>
+    </div>
+  </div>
+
+  <div style="height:40px"></div>
+</div>
+</body>
+</html>
