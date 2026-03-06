@@ -3391,7 +3391,7 @@ async function placeOrder() {
 
   // Send to Telegram
   try {
-    await sendTelegramMessage(message);
+    const orderItems = cart.map(item => { const p = PRODUCTS.find(pr => pr.id === item.id); return { name: p ? p.name : 'Unknown', qty: item.qty, price: p ? p.price * item.qty : 0 }; }); await fetch('/.netlify/functions/submit-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerName: name, contact: phone, items: orderItems, total: total, note: address || 'Pickup' }) });
     if (receiptFile && selectedPayment !== 'cod') {
       await sendTelegramPhoto(receiptFile, `Receipt for ${orderNum}`);
     }
