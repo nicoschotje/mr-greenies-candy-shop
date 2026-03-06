@@ -3550,5 +3550,92 @@ function initIntersectionObserver() {
 }
 </script>
 
+   <script>
+/* ===============================================
+   SUPABASE PRODUCT SYNC — Loads products from dashboard
+=============================================== */
+(async function loadSupabaseProducts() {
+  // Add CSS for product images
+  const style = document.createElement('style');
+  style.textContent = `
+    .product-card-img img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1; }
+    .pd-hero img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+    .new-arrival-img img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1; }
+  `;
+  document.head.appendChild(style);
+
+  try {
+    const resp = await fetch('https://inventorydashboard-cactus-7dbf41.netlify.app/.netlify/functions/get-products');
+    if (!resp.ok) return;
+    const supaProducts = await resp.json();
+    if (!Array.isArray(supaProducts) || supaProducts.length === 0) return;
+
+    let nextId = PRODUCTS.length + 100;
+    supaProducts.forEach(sp => {
+      if (PRODUCTS.find(p => p.name === sp.name)) return;
+      PRODUCTS.push({
+        id: nextId++,
+        name: sp.name,
+        price: sp.price || 0,
+        category: sp.category || 'Candy',
+        emoji: sp.emoji || '\ud83c\udf6c',
+        stock: (sp.stock && sp.stock > 0) ? (sp.stock < 10 ? 'low' : 'in') : 'in',
+        tag: sp.tag || null,
+        description: sp.description || '',
+        isNew: sp.is_new || false,
+        sale: sp.sale_original_price ? { originalPrice: sp.sale_original_price, discountPercent: sp.sale_discount_percent || 0 } : null,
+        image: sp.image || null,
+        launchDate: sp.is_new ? 'New' : undefined
+      });
+    });
+
+    // Rebuild all product sections
+    document.getElementById('featuredScroll').innerHTML = '';
+    document.getElementById('newArrivalsScroll').innerHTML = '';
+    document.getElementById('hotDealsScroll').innerHTML = '';
+    document.getElementById('dealsGrid').innerHTML = '';
+    buildFeaturedProducts();
+    buildNewArrivals();
+    buildHotDeals();
+    buildShopGrid();
+    buildDealsGrid();
+    initIntersectionObserver();
+
+    // Patch createProductCard to support images
+    const origCreateCard = createProductCard;
+    window.createProductCard = function(product, isGridCard) {
+      const card = origCreateCard(product, isGridCard);
+      if (product.image) {
+        const imgDiv = card.querySelector('.product-card-img');
+        if (imgDiv) {
+          const img = document.createElement('img');
+          img.src = product.image;
+          img.alt = product.name;
+          img.loading = 'lazy';
+          imgDiv.appendChild(img);
+        }
+      }
+      return card;
+    };
+
+    // Rebuild again with patched card renderer
+    document.getElementById('featuredScroll').innerHTML = '';
+    document.getElementById('newArrivalsScroll').innerHTML = '';
+    document.getElementById('hotDealsScroll').innerHTML = '';
+    document.getElementById('dealsGrid').innerHTML = '';
+    buildFeaturedProducts();
+    buildNewArrivals();
+    buildHotDeals();
+    buildShopGrid();
+    buildDealsGrid();
+    initIntersectionObserver();
+
+    console.log('Supabase products synced:', supaProducts.length);
+  } catch (err) {
+    console.log('Supabase sync skipped:', err.message);
+  }
+})();
+</script>
+
 </body>
 </html>
